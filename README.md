@@ -19,4 +19,4 @@ You retain control of the resources created by AWS Beanstalk and pay just for th
 
 ## Run terraform
 
-`terraform apply -var="app_name=example-beanstalk-php-app"`
+`terraform apply -var="app_name=example-beanstalk-php-app" -var="app_version=v1"`

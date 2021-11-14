@@ -40,8 +40,8 @@ resource "aws_s3_bucket" "myapp_source_code" {
 # Upload app code
 resource "aws_s3_bucket_object" "myapp_source_code" {
   bucket = aws_s3_bucket.myapp_source_code.id
-  key    = "appsrc.zip"
-  source = "${path.module}/appsrc.zip"
+  key    = "appsrc_${var.app_version}.zip"
+  source = "${path.module}/appsrc_${var.app_version}.zip"
 }
 
 # Create beanstalk app
@@ -49,6 +49,7 @@ module "beanstalk" {
   source = "./modules/beanstalk"
 
   app_name                   = var.app_name
+  app_version                = var.app_version
   vpc_id                     = module.vpc.id
   subnet_ids                 = join(",", module.subnet.subnet_ids)
   source_code_bucket_id      = aws_s3_bucket.myapp_source_code.id

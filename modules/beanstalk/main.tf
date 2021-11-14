@@ -44,12 +44,16 @@ resource "aws_elastic_beanstalk_application" "myapp" {
   description = "App created by TF in AWS Beanstalk"
 }
 
-# App code version, your code uploaded is now associated with an app version
+# App version, your code uploaded is now associated with an app version
 resource "aws_elastic_beanstalk_application_version" "myapp_code_version" {
-  name        = "${var.app_name}-code-version"
+  name        = "${var.app_name}-${var.app_version}"
   application = aws_elastic_beanstalk_application.myapp.name
   bucket      = var.source_code_bucket_id
   key         = var.source_code_bucket_obj_key
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # App environment, configure the runtime environment
@@ -84,6 +88,24 @@ resource "aws_elastic_beanstalk_environment" "myapp_environment" {
   }
 
   setting {
+    namespace = "aws:autoscaling:updatepolicy:rollingupdate"
+    name      = "RollingUpdateEnabled"
+    value     = "true"
+  }
+
+  setting {
+    namespace = "aws:autoscaling:updatepolicy:rollingupdate"
+    name      = "RollingUpdateType"
+    value     = "Time" // Default: Time | Health, Immutable
+  }
+
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "IamInstanceProfile"
+    value     = aws_iam_instance_profile.myapp_iam_instance_profile.name
+  }
+
+  setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "EnvironmentType"
     value     = "LoadBalanced"
@@ -96,8 +118,20 @@ resource "aws_elastic_beanstalk_environment" "myapp_environment" {
   }
 
   setting {
-    namespace = "aws:autoscaling:launchconfiguration"
-    name      = "IamInstanceProfile"
-    value     = aws_iam_instance_profile.myapp_iam_instance_profile.name
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "DeploymentPolicy"
+    value     = "Rolling"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "BatchSizeType"
+    value     = "Percentage"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "BatchSize"
+    value     = "25"
   }
 }
