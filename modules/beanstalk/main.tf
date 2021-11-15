@@ -45,7 +45,7 @@ resource "aws_elastic_beanstalk_application" "myapp" {
 }
 
 # App version, your code uploaded is now associated with an app version
-resource "aws_elastic_beanstalk_application_version" "myapp_code_version" {
+resource "aws_elastic_beanstalk_application_version" "myapp_version" {
   name        = "${var.app_name}-${var.app_version}"
   application = aws_elastic_beanstalk_application.myapp.name
   bucket      = var.source_code_bucket_id
@@ -61,7 +61,7 @@ resource "aws_elastic_beanstalk_environment" "myapp_environment" {
   name                = "${var.app_name}-environment"
   application         = aws_elastic_beanstalk_application.myapp.name
   solution_stack_name = "64bit Amazon Linux 2 v3.3.7 running PHP 7.4"
-  version_label       = aws_elastic_beanstalk_application_version.myapp_code_version.name
+  version_label       = aws_elastic_beanstalk_application_version.myapp_version.name
 
   setting {
     namespace = "aws:ec2:vpc"

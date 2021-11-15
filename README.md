@@ -19,4 +19,27 @@ You retain control of the resources created by AWS Beanstalk and pay just for th
 
 ## Run terraform
 
+Move to the `./examples/example-beanstalk-php-app` directory and run
+
 `terraform apply -var="app_name=example-beanstalk-php-app" -var="app_version=v1"`
+
+## Update your app version
+
+This primer is using the following update strategy: `rolling update type time bach size 25%`.
+
+You can configure a different update strategy by changing the appropriate attributes in `./modules/beanstalk/main.tf` resource `aws_elastic_beanstalk_environment`. The meta-argument controlling the update strategy is the `setting` argument, in particular the one having as `namespace`
+
+- `aws:autoscaling:updatepolicy:rollingupdate`
+- `aws:elasticbeanstalk:command`
+
+To see a comprehensive list of settings and their values visit AWS doc at this [link](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options-general.html#command-options-general-autoscalingupdatepolicyrollingupdate).
+
+In this example you need to apply the configuration at the folder `./examples/example-beanstalk-php-app/release-version-2` to upload new version of your PHP example app. In this example we create a new state for the updated app version, you can also use the same state by applying the config at `./examples/example-beanstalk-php-app` defining a different `app_version` variable.
+
+> This `different state` approach has been taken because it allows us to define and keep different app versions rather than replacing the existing resource with a new one.
+
+`terraform apply -var="app_name=example-beanstalk-php-app" -var="app_version=v2"`
+
+Finally to deploy your app to the environment
+
+`aws --region $(terraform output --raw region) elasticbeanstalk update-environment --environment-name $(terraform output --raw environment_name) --version-label $(terraform output --raw app_version)`

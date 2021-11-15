@@ -16,7 +16,7 @@ provider "aws" {
 
 # Create a VPC
 module "vpc" {
-  source = "./modules/vpc"
+  source = "../../modules/vpc"
 
   name       = "beankstalk-vpc"
   cidr_block = "10.0.0.0/16"
@@ -24,7 +24,7 @@ module "vpc" {
 
 # Create subnets
 module "subnet" {
-  source = "./modules/subnet"
+  source = "../../modules/subnet"
 
   name                = "beankstalk-sn"
   vpc_id              = module.vpc.id
@@ -32,26 +32,23 @@ module "subnet" {
   associate_public_ip = true
 }
 
-# Create the bucket to store the code
-resource "aws_s3_bucket" "myapp_source_code" {
-  bucket = "${var.app_name}-code-bucket"
-}
+# Create the bucket to store the code and upload app code
+module "s3" {
+  source = "../../modules/s3"
 
-# Upload app code
-resource "aws_s3_bucket_object" "myapp_source_code" {
-  bucket = aws_s3_bucket.myapp_source_code.id
-  key    = "appsrc_${var.app_version}.zip"
-  source = "${path.module}/appsrc_${var.app_version}.zip"
+  bucket_name = "${var.app_name}-code-bucket"
+  object_key  = "appsrc_${var.app_version}.zip"
+  object_path = "${path.module}/appsrc_${var.app_version}.zip"
 }
 
 # Create beanstalk app
 module "beanstalk" {
-  source = "./modules/beanstalk"
+  source = "../../modules/beanstalk"
 
   app_name                   = var.app_name
   app_version                = var.app_version
   vpc_id                     = module.vpc.id
   subnet_ids                 = join(",", module.subnet.subnet_ids)
-  source_code_bucket_id      = aws_s3_bucket.myapp_source_code.id
-  source_code_bucket_obj_key = aws_s3_bucket_object.myapp_source_code.key
+  source_code_bucket_id      = module.s3.bucket_id
+  source_code_bucket_obj_key = module.s3.object_key
 }
