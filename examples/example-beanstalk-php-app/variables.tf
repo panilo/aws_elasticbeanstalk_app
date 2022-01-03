@@ -18,3 +18,8 @@ variable "app_name" {
 variable "app_version" {
   type = string
 }
+
+variable "num" {
+  type    = number
+  default = 1
+}

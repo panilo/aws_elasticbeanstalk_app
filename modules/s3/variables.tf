@@ -11,6 +11,6 @@ variable "object_path" {
 }
 
 variable "create_bucket" {
-  type = bool
+  type    = bool
   default = true
 }

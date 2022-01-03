@@ -21,7 +21,13 @@ You retain control of the resources created by AWS Beanstalk and pay just for th
 
 Move to the `./examples/example-beanstalk-php-app` directory and run
 
-`terraform apply -var="app_name=example-beanstalk-php-app" -var="app_version=v1"`
+`terraform apply -var="app_name=example-php-app" -var="app_version=v1"`
+
+## Create multiple environment 
+
+You can create multiple environment by passing the num variable
+
+`terraform apply -var="app_name=example-php-app" -var="app_version=v1" -var="num=3"`
 
 ## Update your app version
 
@@ -38,8 +44,14 @@ In this example you need to apply the configuration at the folder `./examples/ex
 
 > This `different state` approach has been taken because it allows us to define and keep different app versions rather than replacing the existing resource with a new one.
 
-`terraform apply -var="app_name=example-beanstalk-php-app" -var="app_version=v2"`
+`terraform apply -var="app_name=example-php-app" -var="app_version=v2"`
 
 Finally to deploy your app to the environment
 
 `aws --region $(terraform output --raw region) elasticbeanstalk update-environment --environment-name $(terraform output --raw environment_name) --version-label $(terraform output --raw app_version)`
+
+## Update multiple environment 
+
+If you created more than one environment you need to pass the num variable 
+
+`terraform apply -var="app_name=example-php-app" -var="app_version=v2" -var="num=2"`

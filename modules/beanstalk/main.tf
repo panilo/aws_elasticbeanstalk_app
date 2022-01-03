@@ -1,6 +1,6 @@
 # Create an IAM Instance profile for EC2 instances, they will run the beankstalk app
 resource "aws_iam_role" "myapp_iam_role" {
-  name = "${var.app_name}-iam-role"
+  name = "aws-elasticbeanstalk-${var.app_name}-iam-role"
 
   assume_role_policy = <<POLICY
 {
@@ -34,7 +34,7 @@ resource "aws_iam_role_policy_attachment" "myapp_iam_role_aws_beanstalk_workerti
 }
 
 resource "aws_iam_instance_profile" "myapp_iam_instance_profile" {
-  name = "${var.app_name}-instance-profile"
+  name = "aws-elasticbeanstalk-${var.app_name}-instance-profile"
   role = aws_iam_role.myapp_iam_role.name
 }
 
@@ -60,7 +60,7 @@ resource "aws_elastic_beanstalk_application_version" "myapp_version" {
 resource "aws_elastic_beanstalk_environment" "myapp_environment" {
   name                = "${var.app_name}-environment"
   application         = aws_elastic_beanstalk_application.myapp.name
-  solution_stack_name = "64bit Amazon Linux 2 v3.3.7 running PHP 7.4"
+  solution_stack_name = "64bit Amazon Linux 2 v3.3.9 running PHP 7.4"
   version_label       = aws_elastic_beanstalk_application_version.myapp_version.name
 
   setting {

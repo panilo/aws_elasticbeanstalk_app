@@ -19,14 +19,15 @@ provider "aws" {
 }
 
 locals {
-  app_version_name = "${var.app_name}-${var.app_version}"
+  app_version_name = length(var.num) > 0 ? "${var.app_name}-${var.num}-${var.app_version}" : "${var.app_name}-${var.app_version}"
+  app_name         = length(var.num) > 0 ? "${var.app_name}-${var.num}" : "${var.app_name}"
 }
 
 # Get the S3 bucket where app is store
 module "s3" {
   source = "../../../modules/s3"
 
-  bucket_name = "${var.app_name}-code-bucket"
+  bucket_name = "elasticbeanstalk-${var.app_name}-code-bucket"
   object_key  = "appsrc_${var.app_version}.zip"
   object_path = "${path.module}/appsrc_${var.app_version}.zip"
 
@@ -35,7 +36,7 @@ module "s3" {
 
 # Get the beanstalk app
 data "aws_elastic_beanstalk_application" "myapp" {
-  name = var.app_name
+  name = local.app_name
 }
 
 # Add a new app version
@@ -48,7 +49,7 @@ resource "aws_elastic_beanstalk_application_version" "myapp_version" {
 
 
 output "environment_name" {
-  value = "${var.app_name}-environment"
+  value = "${local.app_name}-environment"
 }
 
 output "app_version" {

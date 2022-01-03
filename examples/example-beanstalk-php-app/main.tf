@@ -36,7 +36,7 @@ module "subnet" {
 module "s3" {
   source = "../../modules/s3"
 
-  bucket_name = "${var.app_name}-code-bucket"
+  bucket_name = "elasticbeanstalk-${var.app_name}-code-bucket"
   object_key  = "appsrc_${var.app_version}.zip"
   object_path = "${path.module}/appsrc_${var.app_version}.zip"
 }
@@ -45,7 +45,9 @@ module "s3" {
 module "beanstalk" {
   source = "../../modules/beanstalk"
 
-  app_name                   = var.app_name
+  count = var.num
+
+  app_name                   = var.num > 1 ? "${var.app_name}-${count.index}" : var.app_name
   app_version                = var.app_version
   vpc_id                     = module.vpc.id
   subnet_ids                 = join(",", module.subnet.subnet_ids)
