@@ -50,7 +50,7 @@ Finally to deploy your app to the environment
 
 `aws --region $(terraform output --raw region) elasticbeanstalk update-environment --environment-name $(terraform output --raw environment_name) --version-label $(terraform output --raw app_version)`
 
-## Update multiple environment 
+## Update multiple environment
 
 If you created more than one environment you need to pass the num variable 
 
