@@ -56,11 +56,16 @@ resource "aws_elastic_beanstalk_application_version" "myapp_version" {
   }
 }
 
+data "aws_elastic_beanstalk_solution_stack" "php_stack" {
+  most_recent = true
+  name_regex  = "^64bit Amazon Linux (.*) running PHP 7.4(.*)$"
+}
+
 # App environment, configure the runtime environment
 resource "aws_elastic_beanstalk_environment" "myapp_environment" {
   name                = "${var.app_name}-environment"
   application         = aws_elastic_beanstalk_application.myapp.name
-  solution_stack_name = "64bit Amazon Linux 2 v3.3.9 running PHP 7.4"
+  solution_stack_name = data.aws_elastic_beanstalk_solution_stack.php_stack.name
   version_label       = aws_elastic_beanstalk_application_version.myapp_version.name
 
   setting {
@@ -133,5 +138,24 @@ resource "aws_elastic_beanstalk_environment" "myapp_environment" {
     namespace = "aws:elasticbeanstalk:command"
     name      = "BatchSize"
     value     = "25"
+  }
+
+  # TODO make the following settings optional, with these EBStalk creates a RDS DB for you!
+  setting {
+    namespace = "aws:rds:dbinstance"
+    name      = "DBPassword"
+    value     = "owdqhdowqihdAHuaba!71671"
+  }
+
+  setting {
+    namespace = "aws:rds:dbinstance"
+    name      = "DBEngine"
+    value     = "mysql"
+  }
+
+  setting {
+    namespace = "aws:rds:dbinstance"
+    name      = "HasCoupledDatabase"
+    value     = "true"
   }
 }
